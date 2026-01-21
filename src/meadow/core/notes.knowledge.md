@@ -1,6 +1,6 @@
 # Notes System Overview
 
-### Note Design Principles
+## Note Design Principles
 
 1. Obsidian-First
 - Use native Obsidian features (callouts, embeds, graphs)
@@ -17,22 +17,7 @@
 - User can prevent AI agent from editing notes
 - Notes are written in markdown and fully exportable
 
-## Directory Structure and Organization
-Example:
-```
-   notes/                                     # parent folder, may be named differently
-      _machine/                               # App-managed source notes
-      city_governance/                        # Organized by topic
-         san_mateo_budget_pdf/                # Organized by source
-            fiscal_summary.md                 # Subtopic
-            public_works.md                   # Subtopic
-         city_governance.knowledge.md         # Compares sources
-      machine_notes.knowledge.md              # Tracks research topics
-      research/                               # User knowledge space
-      meadow_notes.knowledge.md               # Overall description of research folder
-```
-
-The Meadow note system uses Obsidian-compatible markdown files organized into two main spaces:
+## Note Types and Organization
 
 ### 1. Machine Space (_machine/*)
 This folder is for AI-generated notes created from knowledge captured by screenshot or OCR in markdown format.
@@ -46,7 +31,7 @@ Source notes:
 - PDF sources are analyzed and split into logical sections
 - Screenshots are analyzed with OCR and window context
 
-- Each note requires metadata frontmatter:
+Required metadata frontmatter:
 ```yaml
 ---
 created: [timestamp]
@@ -60,9 +45,9 @@ privacy_level: [public|internal|sensitive]
 ```
 
 ### 2. User Space (research/*)
-- The user organizes these however they want.
-- Combines user-generated knowledge and insights with LLM contributions.
-- Higher-level knowledge about research activity should be stored in user_notes.knowledge.md and frequently updated.
+- The user organizes these however they want
+- Combines user-generated knowledge and insights with LLM contributions
+- Higher-level knowledge about research activity should be stored in user_notes.knowledge.md and frequently updated
 
 User notes:
 - May or may not exist for all topics. Creating new ones is welcomed.
@@ -75,104 +60,55 @@ User notes:
 > Evidence contradicts previous understanding
 ```
 
-## Your Responsibilities
+## AI Agent Responsibilities
 
-Understand the Current State of Knowledge
-- Review the structure and content of the existing notes.
-- Locate and process new logs in the _staging/ directory containing potential new information.
+### Knowledge Management
+- Review structure and content of existing notes
+- Process new logs in _staging/ directory
+- Create and update source notes in _machine/
+- Contribute insights to user notes in research/
+- Track meta-knowledge in *.knowledge.md files
 
-Create and Update Source Notes in _machine/
-- Faithfully represent information extracted from the logs.
-- Redact sensitive information (PII, credentials, etc.)
-- Generate complete metadata for each note.
-- Link to related concepts and topics.
-- Rewrite and reorganize at will.
+### Content Creation
+- Faithfully represent information from logs
+- Redact sensitive information (PII, credentials)
+- Generate complete metadata
+- Link related concepts and topics
+- Use proper callouts for contributions
+- Cite sources with wiki-style links
 
-Contribute Insights to User Notes in research/
-- Focus on adding contributions to the most recent relevant notes.
-- Optionally create new notes for concepts not yet treated.
-- Insert contributions in the relevant section of the note.
-- Always use proper callouts to indicate your contribution.
-- Always cite source notes and use wiki-style links to do so.
-- Do not edit user's notes which are marked with status: finished or machine_editable : false
-- Do not overwrite or delete user's existing writing.
-- Do not reorganize user's notes.
+### Content Boundaries
+- Do not edit notes marked as finished
+- Do not edit notes with machine_editable: false
+- Do not overwrite user's existing writing
+- Do not reorganize user's notes
 
-Meta-Knowledge Tracking
-- A *.knowledge.md file should be created for each topic in machine space.
-- You also have full read/write access to *.knowledge.md files in user space.
-- Map concept relationships between notes with wiki-style links.
-- Make note of contradictions and evolving knowledge
-- Maintain an up to date changelog in each *.knowledge.md file for relevant changes.
-- Maintain an up to date list of TODOs in each *.knowledge.md file for relevant tasks.
+### Meta-Knowledge Tracking
+- Create *.knowledge.md for each topic in machine space
+- Map concept relationships with wiki-style links
+- Track contradictions and evolving knowledge
+- Maintain changelogs and TODOs
 
-Privacy Handling
+### Privacy Management
 - Respect privacy_level metadata
 - Redact sensitive content
 - Track redactions in metadata
 - Use appropriate detail level in references
 
-Cleanup and Backups
-
-## Topic Similarity Implementation
-
-### Architecture
-- Using sentence-transformers (all-MiniLM-L6-v2) for embeddings
-  - Chosen for reliability and cross-platform support
-  - Well-documented and maintained model
-  - Good performance for semantic similarity tasks
-  - Lazy loading minimizes memory impact
-  - Consistent results across operating systems
-  - Model loaded only when first needed
-  - Known inefficiency: Currently calculates embeddings 3x per check
-    - Once for input text
-    - Once per research topic
-    - Future optimization: Cache embeddings for topics
-Note: Previously attempted Apple NLEmbedding but removed due to:
-  - Unstable API and documentation gaps
-  - Platform lock-in (macOS only)
-  - No clear performance advantage
-  - Implementation complexity
-- Mark the now-processed JSON logs for archiving by setting "processed" to True
-- Logs are automatically split by date for better organization
-- `git commit` frequently to avoid data disasters!
-- Using sentence-transformers (all-MiniLM-L6-v2) for embeddings
-  - Lazy loading minimizes memory impact
-  - Good balance of speed and accuracy
-  - No platform-specific dependencies
-- Threshold-based filtering (default 0.5)
-
-### Integration Points
-- Checks similarity before Claude API call
-- Uses research topics from config
-- Cleans up irrelevant screenshots
-- Logs similarity decisions
-
-### Testing Strategy
-- Test both embedding backends
-- Verify thresholds
-- Use real screenshots
-- Test error cases
-
-### Future Improvements
-- Tune threshold based on user feedback
-- Add similarity score to logs
-- Consider other embedding models
-- Add topic-specific thresholds
-
 ## Writing Guidelines
 
-Machine Notes
-- Clear, factual documentation style.
+### Machine Notes
+- Clear, factual documentation style
 - Write in outlines with headings and bullet points
-- Record structured information in dataview-compatible manner.
+- Record structured information in dataview-compatible manner
 
-User Note Contributions
-- Match the existing style of the document being edited.
-- Be direct about contradictions and maintain clear evidence chains.
+### User Note Contributions
+- Match the existing style of the document
+- Be direct about contradictions
+- Maintain clear evidence chains
 
-Knowledge.md Notes
-- Write in outlines with headings and bullet points.
+### Knowledge.md Notes
+- Write in outlines with headings and bullet points
 - Aim to be helpful to someone familiarizing themselves with the notes
 
 **Remember: Always link to source material, indicate your contribution, and respect privacy metadata.**
